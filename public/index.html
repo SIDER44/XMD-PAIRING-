@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALMEER XMD — Pairing Site</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050508;
+      --surface: #0e0e14;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 10%, rgba(124,58,237,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 90%, rgba(6,182,212,0.1) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      display: none;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .page.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.35);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      color: #a78bfa;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: #a78bfa;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.7), rgba(6,182,212,0.4), transparent);
+    }
+
+    .card-glow {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(124,58,237,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .logo-icon {
+      width: 50px; height: 50px;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+
+    .logo-name {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-top: 2px;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .step { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #94a3b8; }
+
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #a78bfa;
+      flex-shrink: 0;
+      font-family: 'Space Mono', monospace;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      display: flex;
+      background: #07070a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrap:focus-within {
+      border-color: rgba(124,58,237,0.6);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+
+    .prefix {
+      padding: 14px 16px;
+      background: rgba(124,58,237,0.1);
+      border-right: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      color: #a78bfa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: 'Space Mono', monospace;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; font-family: 'Space Mono', monospace; }
+
+    /* ── ERROR BOX ── */
+    .error-box {
+      display: none;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #fca5a5;
+      font-family: 'Space Mono', monospace;
+      line-height: 1.5;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.2s;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      color: white;
+    }
+
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.45); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-copy {
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.35);
+      color: var(--green);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .btn-copy:hover { background: rgba(16,185,129,0.25); }
+
+    .btn-restart {
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: #a78bfa;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .btn-restart:hover { background: rgba(124,58,237,0.25); }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .code-box {
+      background: #07070a;
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .code-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .code-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 36px;
+      font-weight: 700;
+      color: #a78bfa;
+      letter-spacing: 0.2em;
+      text-shadow: 0 0 30px rgba(124,58,237,0.5);
+    }
+
+    .code-expires { font-size: 12px; color: var(--muted); margin-top: 10px; font-family: 'Space Mono', monospace; }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 16px;
+    }
+
+    .status-bar.waiting { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: var(--yellow); }
+    .status-bar.connected { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--green); }
+    .status-bar.failed { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .status-bar.waiting .status-dot { background: var(--yellow); animation: pulse-dot 1s infinite; }
+    .status-bar.connected .status-dot { background: var(--green); }
+    .status-bar.failed .status-dot { background: var(--red); }
+
+    .session-box {
+      background: #07070a;
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .session-label { font-size: 11px; color: var(--green); font-family: 'Space Mono', monospace; letter-spacing: 0.08em; margin-bottom: 10px; text-transform: uppercase; }
+
+    .session-string {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+      word-break: break-all;
+      line-height: 1.6;
+      max-height: 80px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .session-string::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, #07070a);
+    }
+
+    .instructions { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+
+    .instr-step { display: flex; gap: 10px; font-size: 13px; color: #94a3b8; line-height: 1.5; }
+    .instr-step span:first-child { flex-shrink: 0; font-size: 15px; }
+
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; }
+    .footer span { color: #a78bfa; }
+
+    @media (max-width: 480px) {
+      .card { padding: 24px 18px; }
+      .code-value { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1: ENTER NUMBER -->
+<div class="page active" id="page1">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    ALMEER XMD PAIRING SYSTEM
+  </div>
+
+  <div class="card">
+    <div class="card-glow"></div>
+
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div>
+        <div class="logo-name">ALMEER XMD</div>
+        <div class="logo-sub">// Bot Pairing System</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Get Your Pairing Code</h2>
+    <p class="subtitle">Enter your WhatsApp number to receive a pairing code. After linking, your session string will be sent directly to your WhatsApp.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <span>Enter your number → get pairing code</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <span>Enter code in WhatsApp → Linked Devices</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <span>Session string sent to your WhatsApp automatically</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 6px;">
+      <label>Your WhatsApp Number</label>
+      <div class="input-wrap">
+        <div class="prefix">🌍 +</div>
+        <input
+          type="text"
+          id="phoneInput"
+          placeholder="254712345678"
+          maxlength="15"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        />
+      </div>
+      <div class="hint">// Country code + number, no + sign. e.g. 254712345678</div>
+    </div>
+
+    <!-- Error box -->
+    <div class="error-box" id="errorBox"></div>
+
+    <button class="btn btn-primary" id="getCodeBtn" onclick="requestCode()">
+      ⚡ Get Pairing Code
+    </button>
+  </div>
+
+  <div class="footer">Powered by <span>ALMEER XMD</span> • Free Bot Pairing</div>
+</div>
+
+<!-- PAGE 2: ENTER CODE IN WHATSAPP -->
+<div class="page" id="page2">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    STEP 2 — ENTER CODE IN WHATSAPP
+  </div>
+
+  <div class="card">
+    <div class="card-glow"></div>
+
+    <div class="logo">
+      <div class="logo-icon">🔑</div>
+      <div>
+        <div class="logo-name">Pairing Code</div>
+        <div class="logo-sub">// Enter this in WhatsApp now</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="status-bar waiting" id="statusBar">
+      <div class="status-dot"></div>
+      <span id="statusText">Waiting for you to enter the code in WhatsApp...</span>
+    </div>
+
+    <div class="code-box">
+      <div class="code-label">Your Pairing Code</div>
+      <div class="code-value" id="codeDisplay">----</div>
+      <div class="code-expires">⏳ Code expires in ~60 seconds</div>
+    </div>
+
+    <div class="instructions">
+      <div class="instr-step"><span>1️⃣</span><span>Open <strong>WhatsApp</strong> on your phone</span></div>
+      <div class="instr-step"><span>2️⃣</span><span>Tap <strong>⋮ Menu</strong> → <strong>Linked Devices</strong></span></div>
+      <div class="instr-step"><span>3️⃣</span><span>Tap <strong>"Link with phone number"</strong></span></div>
+      <div class="instr-step"><span>4️⃣</span><span>Enter the code above → session will be sent to your WhatsApp ✅</span></div>
+    </div>
+
+    <button class="btn btn-restart" onclick="restart()">
+      ← Try Different Number
+    </button>
+  </div>
+
+  <div class="footer">Powered by <span>ALMEER XMD</span></div>
+</div>
+
+<!-- PAGE 3: SUCCESS -->
+<div class="page" id="page3">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    SESSION SENT TO YOUR WHATSAPP ✅
+  </div>
+
+  <div class="card">
+    <div class="card-glow"></div>
+
+    <div class="logo">
+      <div class="logo-icon">✅</div>
+      <div>
+        <div class="logo-name">All Done!</div>
+        <div class="logo-sub">// Check your WhatsApp</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="status-bar connected">
+      <div class="status-dot"></div>
+      <span>Session string sent to your WhatsApp!</span>
+    </div>
+
+    <p class="subtitle">Check your WhatsApp messages — we sent your session string there. You can also copy it below.</p>
+
+    <div class="session-box">
+      <div class="session-label">📋 Session String (SESSION_DATA)</div>
+      <div class="session-string" id="sessionString">Loading...</div>
+    </div>
+
+    <button class="btn btn-copy" onclick="copySession()">
+      📋 Copy Session String
+    </button>
+
+    <div class="instructions" style="margin-top: 20px;">
+      <div class="instr-step"><span>1️⃣</span><span>Go to your <strong>Pterodactyl Panel</strong> → Your server</span></div>
+      <div class="instr-step"><span>2️⃣</span><span>Go to <strong>Startup</strong> tab → Environment Variables</span></div>
+      <div class="instr-step"><span>3️⃣</span><span>Set <strong>SESSION_DATA</strong> = paste the copied string</span></div>
+      <div class="instr-step"><span>4️⃣</span><span>Click <strong>Start</strong> → Your bot is live! 🚀</span></div>
+    </div>
+
+    <button class="btn btn-restart" onclick="restart()">
+      🔄 Pair Another Number
+    </button>
+  </div>
+
+  <div class="footer">Powered by <span>ALMEER XMD</span> • Bot is now ready!</div>
+</div>
+
+<script>
+  let currentSessionId = null;
+  let pollInterval = null;
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById(id);
+    page.style.animation = 'none';
+    page.offsetHeight;
+    page.style.animation = '';
+    page.classList.add('active');
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = '❌ ' + msg;
+    box.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('errorBox').style.display = 'none';
+  }
+
+  async function requestCode() {
+    hideError();
+
+    const phone = document.getElementById('phoneInput').value.trim();
+    const btn = document.getElementById('getCodeBtn');
+
+    // Validate phone
+    if (!phone) {
+      showError('Please enter your WhatsApp number!');
+      return;
+    }
+
+    if (phone.length < 7) {
+      showError('Number too short. Include country code e.g. 254712345678');
+      return;
+    }
+
+    if (phone.length > 15) {
+      showError('Number too long. Check your number!');
+      return;
+    }
+
+    // Show loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Requesting Code...';
+
+    try {
+      const res = await fetch('/request-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+
+      // Check if response is ok
+      if (!res.ok) {
+        throw new Error('Server returned error: ' + res.status);
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        currentSessionId = data.sessionId;
+        document.getElementById('codeDisplay').textContent = data.code;
+        showPage('page2');
+        startPolling();
+      } else {
+        showError(data.error || 'Failed to get pairing code. Try again!');
+      }
+
+    } catch (e) {
+      console.error('Fetch error:', e);
+      if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+        showError('Cannot connect to server. Make sure the bot is deployed and running on Render!');
+      } else {
+        showError('Error: ' + e.message);
+      }
+    }
+
+    // Reset button
+    btn.disabled = false;
+    btn.innerHTML = '⚡ Get Pairing Code';
+  }
+
+  function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+
+    pollInterval = setInterval(async () => {
+      if (!currentSessionId) return;
+
+      try {
+        const res = await fetch('/session-status/' + currentSessionId);
+        const data = await res.json();
+
+        if (data.status === 'connected' && data.session) {
+          clearInterval(pollInterval);
+          document.getElementById('sessionString').textContent = data.session;
+          showPage('page3');
+
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval);
+          const bar = document.getElementById('statusBar');
+          bar.className = 'status-bar failed';
+          document.getElementById('statusText').textContent = 'Connection failed. Please try again.';
+
+        } else if (data.status === 'not_found') {
+          clearInterval(pollInterval);
+          showPage('page1');
+          showError('Session expired. Please try again.');
+        }
+
+      } catch (e) {
+        console.error('Poll error:', e);
+      }
+    }, 3000);
+  }
+
+  function copySession() {
+    const text = document.getElementById('sessionString').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy Session Stri
